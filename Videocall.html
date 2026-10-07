@@ -1,0 +1,59 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Video Call App</title>
+</head>
+<body>
+
+    <h2>Video Call Room</h2>
+    
+    <!-- User-er nijer video -->
+    <video id="myVideo" autoplay playsinline muted width="200"></video>
+    
+    <!-- Onno pranter video -->
+    <video id="remoteVideo" autoplay playsinline width="400"></video>
+
+    <br><br>
+    <button id="joinBtn">Join / Receive Call</button>
+    <p id="status"></p>
+
+    <!-- PeerJS Library -->
+    <script src="https://unpkg.com/peerjs@1.5.2/dist/peerjs.min.js"></script>
+    <script>
+        const myVideo = document.getElementById('myVideo');
+        const remoteVideo = document.getElementById('remoteVideo');
+        const joinBtn = document.getElementById('joinBtn');
+        const status = document.getElementById('status');
+
+        // Peer ID toiri kora
+        const peer = new Peer();
+
+        peer.on('open', function(id) {
+            status.innerText = "Your ID: " + id;
+        });
+
+        // Call receive korar logic
+        joinBtn.addEventListener('click', function() {
+            navigator.mediaDevices.getUserMedia({ video: true, audio: true })
+                .then(function(stream) {
+                    myVideo.srcObject = stream;
+                    status.innerText = "Connected to Call";
+
+                    // Onno keu call dile receive hobe
+                    peer.on('call', function(call) {
+                        call.answer(stream);
+                        call.on('stream', function(remoteStream) {
+                            remoteVideo.srcObject = remoteStream;
+                        });
+                    });
+                })
+                .catch(function(err) {
+                    status.innerText = "Camera permission error!";
+                });
+        });
+    </script>
+
+</body>
+</html>
